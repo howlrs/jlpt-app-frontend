@@ -49,7 +49,7 @@ export default function AdminDashboardPage() {
     return <div className="flex items-center justify-center py-20 text-red-500">{error}</div>;
   }
 
-  const maxTotal = stats?.levels ? Math.max(...stats.levels.map((l) => l.total), 1) : 1;
+  const maxTotal = stats?.levels ? Math.max(...stats.levels.map((l) => l.total_questions), 1) : 1;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -69,12 +69,12 @@ export default function AdminDashboardPage() {
             {stats.levels.map((level) => {
               const barColor = LEVEL_BAR_COLORS[level.level_name] || "bg-gray-400";
               const textColor = LEVEL_TEXT_COLORS[level.level_name] || "text-gray-600";
-              const pct = maxTotal > 0 ? (level.total / maxTotal) * 100 : 0;
+              const pct = maxTotal > 0 ? (level.total_questions / maxTotal) * 100 : 0;
               return (
                 <div key={level.level_name}>
                   <div className="flex items-center justify-between mb-1">
                     <span className={`text-sm font-semibold ${textColor}`}>{level.level_name}</span>
-                    <span className="text-sm text-gray-500">{level.total.toLocaleString()}問</span>
+                    <span className="text-sm text-gray-500">{level.total_questions.toLocaleString()}問</span>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-3">
                     <div
@@ -83,8 +83,8 @@ export default function AdminDashboardPage() {
                     />
                   </div>
                   <div className="flex gap-4 mt-1 text-xs text-gray-500">
-                    <span className="text-green-600">Good: {level.good}</span>
-                    <span className="text-red-600">Bad: {level.bad}</span>
+                    <span className="text-green-600">Good: {level.good_votes}</span>
+                    <span className="text-red-600">Bad: {level.bad_votes}</span>
                   </div>
                 </div>
               );

@@ -86,10 +86,13 @@ export interface BadQuestion {
 }
 
 export interface LevelStats {
+  level_id: number;
   level_name: string;
-  total: number;
-  good: number;
-  bad: number;
+  total_questions: number;
+  total_sub_questions: number;
+  good_votes: number;
+  bad_votes: number;
+  categories: { name: string; questions: number; sub_questions: number }[];
 }
 
 export interface AdminStats {

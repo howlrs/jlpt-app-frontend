@@ -105,6 +105,13 @@ export default function AdminDashboardPage() {
               <p className="text-sm text-gray-500">低品質問題の確認・削除</p>
             </div>
           </Link>
+          <Link href="/admin/coverage" className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-purple-400 hover:bg-purple-50 transition">
+            <span className="text-2xl">📊</span>
+            <div>
+              <p className="font-semibold text-gray-800">カバレッジ分析</p>
+              <p className="text-sm text-gray-500">問題のポジショニングマップ・カテゴリ別充足率</p>
+            </div>
+          </Link>
           <Link href="/" className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-green-400 hover:bg-green-50 transition">
             <span className="text-2xl">📝</span>
             <div>

@@ -206,3 +206,34 @@ export async function adminFetchStats(token: string): Promise<AdminStats> {
   const data = await res.json();
   return data.data ?? data;
 }
+
+// Coverage API
+
+export interface CoverageCategory {
+  category_id: string;
+  category_name: string;
+  question_count: number;
+  sub_question_count: number;
+  target: number;
+  coverage_pct: number;
+}
+
+export interface CoverageLevel {
+  level_id: number;
+  level_name: string;
+  total_questions: number;
+  categories: CoverageCategory[];
+}
+
+export interface CoverageStats {
+  levels: CoverageLevel[];
+}
+
+export async function adminFetchCoverage(token: string): Promise<CoverageStats> {
+  const res = await fetch(`${API_BASE}/api/admin/coverage-stats`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch coverage");
+  const data = await res.json();
+  return data.data ?? data;
+}

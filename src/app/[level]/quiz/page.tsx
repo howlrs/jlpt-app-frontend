@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useParams } from "next/navigation";
-import { fetchQuestions, Question } from "@/lib/api";
+import { fetchQuestions, submitVote, Question } from "@/lib/api";
 
 const levelMap: Record<string, number> = {
   n1: 1, n2: 2, n3: 3, n4: 4, n5: 5,
@@ -22,6 +22,7 @@ function QuizContent() {
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [loading, setLoading] = useState(true);
+  const [voted, setVoted] = useState<string | null>(null);
 
   const loadQuestions = useCallback(() => {
     setLoading(true);
@@ -75,9 +76,16 @@ function QuizContent() {
     }));
   };
 
+  const handleVote = async (vote: "good" | "bad") => {
+    if (voted) return;
+    setVoted(vote);
+    await submitVote(vote, question.id, String(subQuestion.id));
+  };
+
   const handleNext = () => {
     setSelected(null);
     setShowResult(false);
+    setVoted(null);
     if (currentSub + 1 < question.sub_questions.length) {
       setCurrentSub(currentSub + 1);
     } else if (currentQ + 1 < questions.length) {
@@ -137,13 +145,44 @@ function QuizContent() {
         </div>
 
         {showResult && (
-          <div className="mt-6 text-center">
-            <button
-              onClick={handleNext}
-              className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-lg"
-            >
-              次の問題 →
-            </button>
+          <div className="mt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleVote("good")}
+                  disabled={!!voted}
+                  className={`px-3 py-2 rounded-lg text-sm transition ${
+                    voted === "good"
+                      ? "bg-green-100 text-green-700 border border-green-300"
+                      : voted
+                      ? "bg-gray-100 text-gray-400"
+                      : "bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-700"
+                  }`}
+                >
+                  👍 良問
+                </button>
+                <button
+                  onClick={() => handleVote("bad")}
+                  disabled={!!voted}
+                  className={`px-3 py-2 rounded-lg text-sm transition ${
+                    voted === "bad"
+                      ? "bg-red-100 text-red-700 border border-red-300"
+                      : voted
+                      ? "bg-gray-100 text-gray-400"
+                      : "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-700"
+                  }`}
+                >
+                  👎 問題あり
+                </button>
+                {voted && <span className="text-xs text-gray-400 self-center ml-1">送信済み</span>}
+              </div>
+              <button
+                onClick={handleNext}
+                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-lg"
+              >
+                次の問題 →
+              </button>
+            </div>
           </div>
         )}
       </div>

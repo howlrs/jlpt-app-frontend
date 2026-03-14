@@ -50,3 +50,15 @@ export async function fetchQuestions(levelId: number, categoryId: number, limit?
   const data = await res.json();
   return data.data || [];
 }
+
+export async function submitVote(vote: "good" | "bad", parentId: string, childId: string): Promise<boolean> {
+  try {
+    const url = new URL(`${API_BASE}/api/evaluate/${vote}`);
+    url.searchParams.set("parent_id", parentId);
+    url.searchParams.set("child_id", childId);
+    const res = await fetch(url.toString());
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

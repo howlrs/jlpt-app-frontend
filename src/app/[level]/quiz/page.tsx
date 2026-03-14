@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useParams } from "next/navigation";
-import { fetchQuestions, submitVote, Question } from "@/lib/api";
+import { fetchQuestions, submitVote, recordAnswer, Question } from "@/lib/api";
 
 const levelMap: Record<string, number> = {
   n1: 1, n2: 2, n3: 3, n4: 4, n5: 5,
@@ -74,6 +74,10 @@ function QuizContent() {
       correct: prev.correct + (key === subQuestion.answer ? 1 : 0),
       total: prev.total + 1,
     }));
+    const token = localStorage.getItem("user_token");
+    if (token) {
+      recordAnswer(token, question.id, subQuestion.id, key);
+    }
   };
 
   const handleVote = async (vote: "good" | "bad") => {

@@ -63,6 +63,55 @@ export async function submitVote(vote: "good" | "bad", parentId: string, childId
   }
 }
 
+// User API
+
+export async function signup(email: string, password: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password, id: "", user_id: "" }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "登録に失敗しました");
+  }
+}
+
+export async function recordAnswer(token: string, questionId: string, subQuestionId: number, selectedAnswer: string): Promise<void> {
+  await fetch(`${API_BASE}/api/answers`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ question_id: questionId, sub_question_id: subQuestionId, selected_answer: selectedAnswer }),
+  }).catch(() => {});
+}
+
+export async function fetchHistory(token: string, limit = 50) {
+  const res = await fetch(`${API_BASE}/api/users/me/history?limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch history");
+  const data = await res.json();
+  return data.data ?? [];
+}
+
+export async function fetchUserStats(token: string) {
+  const res = await fetch(`${API_BASE}/api/users/me/stats`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch stats");
+  const data = await res.json();
+  return data.data ?? data;
+}
+
+export async function fetchMistakes(token: string, limit = 20) {
+  const res = await fetch(`${API_BASE}/api/users/me/mistakes?limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch mistakes");
+  const data = await res.json();
+  return data.data ?? [];
+}
+
 // Admin API
 
 export interface VoteSummary {

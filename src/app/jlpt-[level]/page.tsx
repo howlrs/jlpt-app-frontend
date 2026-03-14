@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Metadata } from "next";
+import CategoryList from "./CategoryList";
 
 const levelInfo: Record<string, { id: number; name: string; description: string; vocab: string; kanji: string }> = {
   n1: { id: 1, name: "N1", description: "幅広い場面で使われる高度な日本語を理解できる", vocab: "約10,000語", kanji: "約2,000字" },
@@ -42,10 +43,7 @@ export default async function LevelPage({ params }: { params: Promise<{ level: s
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center text-gray-500">
-          <p>カテゴリ一覧を読み込み中...</p>
-          <p className="text-sm mt-2">（API接続後にカテゴリが表示されます）</p>
-        </div>
+        <CategoryList levelId={info.id} levelSlug={level} />
       </div>
     </main>
   );

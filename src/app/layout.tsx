@@ -11,6 +11,13 @@ export const metadata: Metadata = {
   },
   description: "JLPT N1〜N5の練習問題を無料で学習。語彙・文法・読解・聴解の全カテゴリ対応。",
   keywords: ["JLPT", "日本語能力試験", "N1", "N2", "N3", "N4", "N5", "練習問題", "Japanese"],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: { url: "/icon-192.png" },
+  },
   openGraph: {
     title: "JLPT 日本語能力試験 対策学習アプリ",
     description: "N1〜N5の練習問題を無料で学習",

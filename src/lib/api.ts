@@ -84,16 +84,17 @@ export interface BadQuestion {
   sub_questions: SubQuestion[];
 }
 
-export async function signin(email: string, password: string): Promise<{ token: string }> {
+export async function signin(email: string, password: string): Promise<string> {
   const res = await fetch(`${API_BASE}/api/signin`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, id: "", user_id: "" }),
   });
   if (!res.ok) {
     throw new Error("ログインに失敗しました");
   }
-  return res.json();
+  const json = await res.json();
+  return json.data?.token ?? json.token;
 }
 
 export async function adminFetchSummary(token: string): Promise<VoteSummary> {

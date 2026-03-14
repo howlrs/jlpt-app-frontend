@@ -15,7 +15,7 @@ export default function AdminLoginPage() {
     setError("");
     setLoading(true);
     try {
-      const { token } = await signin(email, password);
+      const token = await signin(email, password);
       localStorage.setItem("admin_token", token);
       router.replace("/admin");
     } catch {

@@ -62,3 +62,62 @@ export async function submitVote(vote: "good" | "bad", parentId: string, childId
     return false;
   }
 }
+
+// Admin API
+
+export interface VoteSummary {
+  total_questions: number;
+  total_votes: number;
+  good_rate: number;
+  bad_questions_count: number;
+}
+
+export interface BadQuestion {
+  id: string;
+  sentence: string;
+  category_name: string;
+  good_count: number;
+  bad_count: number;
+  bad_rate: number;
+  level_name: string;
+  prerequisites: string | null;
+  sub_questions: SubQuestion[];
+}
+
+export async function signin(email: string, password: string): Promise<{ token: string }> {
+  const res = await fetch(`${API_BASE}/api/signin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    throw new Error("ログインに失敗しました");
+  }
+  return res.json();
+}
+
+export async function adminFetchSummary(token: string): Promise<VoteSummary> {
+  const res = await fetch(`${API_BASE}/api/admin/votes/summary`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch summary");
+  const data = await res.json();
+  return data.data ?? data;
+}
+
+export async function adminFetchBadQuestions(token: string): Promise<BadQuestion[]> {
+  const res = await fetch(`${API_BASE}/api/admin/questions/bad`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch bad questions");
+  const data = await res.json();
+  return data.data ?? data;
+}
+
+export async function adminDeleteQuestion(token: string, questionId: string): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/api/admin/questions/${questionId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.ok;
+}

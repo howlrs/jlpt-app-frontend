@@ -22,7 +22,7 @@ export default function CategoryList({ levelId, levelSlug }: { levelId: number; 
       {categories.map((cat) => (
         <Link
           key={cat.id}
-          href={`/jlpt-${levelSlug}/quiz?category=${cat.id}`}
+          href={`/${levelSlug}/quiz?category=${cat.id}`}
           className="block p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200"
         >
           <div className="flex items-center justify-between">

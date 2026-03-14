@@ -24,7 +24,7 @@ export default function Home() {
           {levels.map((level) => (
             <Link
               key={level.id}
-              href={`/jlpt-${level.id}`}
+              href={`/${level.id}`}
               className="block p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200"
             >
               <div className="flex items-center justify-between">

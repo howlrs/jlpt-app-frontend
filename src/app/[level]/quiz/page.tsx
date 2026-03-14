@@ -5,7 +5,6 @@ import { useSearchParams, useParams } from "next/navigation";
 import { fetchQuestions, Question } from "@/lib/api";
 
 const levelMap: Record<string, number> = {
-  "jlpt-n1": 1, "jlpt-n2": 2, "jlpt-n3": 3, "jlpt-n4": 4, "jlpt-n5": 5,
   n1: 1, n2: 2, n3: 3, n4: 4, n5: 5,
 };
 
@@ -43,7 +42,7 @@ function QuizContent() {
   if (questions.length === 0) return (
     <div className="min-h-screen flex flex-col items-center justify-center text-gray-500 gap-4">
       <p>問題が見つかりません</p>
-      <Link href={`/jlpt-${level}`} className="text-blue-600 hover:underline">カテゴリ選択に戻る</Link>
+      <Link href={`/${level}`} className="text-blue-600 hover:underline">カテゴリ選択に戻る</Link>
     </div>
   );
 
@@ -59,7 +58,7 @@ function QuizContent() {
           <p className="text-gray-500 mb-6">正答率: {score.total > 0 ? Math.round((score.correct / score.total) * 100) : 0}%</p>
           <div className="flex gap-3 justify-center">
             <button onClick={loadQuestions} className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">もう一度</button>
-            <Link href={`/jlpt-${level}`} className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">戻る</Link>
+            <Link href={`/${level}`} className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">戻る</Link>
           </div>
         </div>
       </div>
@@ -93,7 +92,7 @@ function QuizContent() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
-          <Link href={`/jlpt-${level}`} className="text-blue-600 hover:underline text-sm">&larr; 戻る</Link>
+          <Link href={`/${level}`} className="text-blue-600 hover:underline text-sm">&larr; 戻る</Link>
           <span className="text-sm text-gray-500">
             {score.correct}/{score.total} 正解
           </span>

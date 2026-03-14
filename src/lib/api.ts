@@ -82,6 +82,18 @@ export interface BadQuestion {
   level_name: string;
   prerequisites: string | null;
   sub_questions: SubQuestion[];
+  generated_by: string | null;
+}
+
+export interface LevelStats {
+  level_name: string;
+  total: number;
+  good: number;
+  bad: number;
+}
+
+export interface AdminStats {
+  levels: LevelStats[];
 }
 
 export async function signin(email: string, password: string): Promise<string> {
@@ -121,4 +133,24 @@ export async function adminDeleteQuestion(token: string, questionId: string): Pr
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.ok;
+}
+
+export async function adminBulkDelete(token: string, ids: string[]): Promise<{ deleted: number; failed: number }> {
+  const res = await fetch(`${API_BASE}/api/admin/questions/bulk-delete`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ ids }),
+  });
+  if (!res.ok) throw new Error("Bulk delete failed");
+  const data = await res.json();
+  return data.data ?? data;
+}
+
+export async function adminFetchStats(token: string): Promise<AdminStats> {
+  const res = await fetch(`${API_BASE}/api/admin/stats`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Failed to fetch stats");
+  const data = await res.json();
+  return data.data ?? data;
 }

@@ -1,18 +1,42 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { adminFetchSummary, VoteSummary } from "@/lib/api";
+import { adminFetchSummary, adminFetchStats, VoteSummary, AdminStats } from "@/lib/api";
+
+const LEVEL_BAR_COLORS: Record<string, string> = {
+  N1: "bg-red-500",
+  N2: "bg-orange-500",
+  N3: "bg-yellow-500",
+  N4: "bg-blue-500",
+  N5: "bg-green-500",
+};
+
+const LEVEL_TEXT_COLORS: Record<string, string> = {
+  N1: "text-red-600",
+  N2: "text-orange-600",
+  N3: "text-yellow-600",
+  N4: "text-blue-600",
+  N5: "text-green-600",
+};
 
 export default function AdminDashboardPage() {
   const [summary, setSummary] = useState<VoteSummary | null>(null);
+  const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("admin_token");
     if (!token) return;
-    adminFetchSummary(token)
-      .then(setSummary)
+
+    Promise.all([
+      adminFetchSummary(token),
+      adminFetchStats(token).catch(() => null),
+    ])
+      .then(([summaryData, statsData]) => {
+        setSummary(summaryData);
+        if (statsData) setStats(statsData);
+      })
       .catch(() => setError("データの取得に失敗しました"))
       .finally(() => setLoading(false));
   }, []);
@@ -24,6 +48,8 @@ export default function AdminDashboardPage() {
   if (error) {
     return <div className="flex items-center justify-center py-20 text-red-500">{error}</div>;
   }
+
+  const maxTotal = stats?.levels ? Math.max(...stats.levels.map((l) => l.total), 1) : 1;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -37,8 +63,36 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-        <h3 className="font-bold text-gray-700 mb-3">レベル別品質概要</h3>
-        <p className="text-sm text-gray-500">レベル別の詳細データはAPIの対応後に表示されます。</p>
+        <h3 className="font-bold text-gray-700 mb-4">レベル別品質概要</h3>
+        {stats?.levels && stats.levels.length > 0 ? (
+          <div className="space-y-3">
+            {stats.levels.map((level) => {
+              const barColor = LEVEL_BAR_COLORS[level.level_name] || "bg-gray-400";
+              const textColor = LEVEL_TEXT_COLORS[level.level_name] || "text-gray-600";
+              const pct = maxTotal > 0 ? (level.total / maxTotal) * 100 : 0;
+              return (
+                <div key={level.level_name}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-sm font-semibold ${textColor}`}>{level.level_name}</span>
+                    <span className="text-sm text-gray-500">{level.total.toLocaleString()}問</span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-3">
+                    <div
+                      className={`h-3 rounded-full ${barColor} transition-all`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <div className="flex gap-4 mt-1 text-xs text-gray-500">
+                    <span className="text-green-600">Good: {level.good}</span>
+                    <span className="text-red-600">Bad: {level.bad}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500">レベル別の詳細データはAPIの対応後に表示されます。</p>
+        )}
       </div>
 
       <Link

@@ -95,12 +95,25 @@ export default function AdminDashboardPage() {
         )}
       </div>
 
-      <Link
-        href="/admin/votes"
-        className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-      >
-        投票レビューを確認
-      </Link>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h3 className="font-bold text-gray-700 mb-4">管理メニュー</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Link href="/admin/votes" className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition">
+            <span className="text-2xl">📋</span>
+            <div>
+              <p className="font-semibold text-gray-800">投票レビュー</p>
+              <p className="text-sm text-gray-500">低品質問題の確認・削除</p>
+            </div>
+          </Link>
+          <Link href="/" className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:border-green-400 hover:bg-green-50 transition">
+            <span className="text-2xl">📝</span>
+            <div>
+              <p className="font-semibold text-gray-800">問題演習（ユーザー視点）</p>
+              <p className="text-sm text-gray-500">ユーザーと同じ画面で確認</p>
+            </div>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

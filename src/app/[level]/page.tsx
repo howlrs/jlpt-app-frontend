@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import CategoryList from "./CategoryList";
 
-const levelInfo: Record<string, { id: number; name: string; description: string; vocab: string; kanji: string }> = {
-  n1: { id: 1, name: "N1", description: "幅広い場面で使われる高度な日本語を理解できる", vocab: "約10,000語", kanji: "約2,000字" },
-  n2: { id: 2, name: "N2", description: "日常的な場面で使われる日本語をある程度理解できる", vocab: "約6,000語", kanji: "約1,000字" },
-  n3: { id: 3, name: "N3", description: "日常的な場面で使われる日本語をある程度理解できる", vocab: "約3,000語", kanji: "約650字" },
-  n4: { id: 4, name: "N4", description: "基本的な日本語を理解できる", vocab: "約1,500語", kanji: "約300字" },
-  n5: { id: 5, name: "N5", description: "基本的な日本語をある程度理解できる", vocab: "約800語", kanji: "約100字" },
+const levelInfo: Record<string, { id: number; name: string; slug: string; description: string; vocab: string; kanji: string }> = {
+  "jlpt-n1": { id: 1, name: "N1", slug: "n1", description: "幅広い場面で使われる高度な日本語を理解できる", vocab: "約10,000語", kanji: "約2,000字" },
+  "jlpt-n2": { id: 2, name: "N2", slug: "n2", description: "日常的な場面で使われる日本語をある程度理解できる", vocab: "約6,000語", kanji: "約1,000字" },
+  "jlpt-n3": { id: 3, name: "N3", slug: "n3", description: "日常的な場面で使われる日本語をある程度理解できる", vocab: "約3,000語", kanji: "約650字" },
+  "jlpt-n4": { id: 4, name: "N4", slug: "n4", description: "基本的な日本語を理解できる", vocab: "約1,500語", kanji: "約300字" },
+  "jlpt-n5": { id: 5, name: "N5", slug: "n5", description: "基本的な日本語をある程度理解できる", vocab: "約800語", kanji: "約100字" },
 };
 
 export function generateStaticParams() {
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ level: st
 export default async function LevelPage({ params }: { params: Promise<{ level: string }> }) {
   const { level } = await params;
   const info = levelInfo[level];
-  if (!info) return <div>Not Found</div>;
+  if (!info) notFound();
 
   return (
     <main className="min-h-screen bg-gray-50">

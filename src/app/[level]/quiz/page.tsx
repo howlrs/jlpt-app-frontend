@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useSearchParams, useParams } from "next/navigation";
 import { fetchQuestions, Question } from "@/lib/api";
 
-const levelMap: Record<string, number> = { n1: 1, n2: 2, n3: 3, n4: 4, n5: 5 };
+const levelMap: Record<string, number> = {
+  "jlpt-n1": 1, "jlpt-n2": 2, "jlpt-n3": 3, "jlpt-n4": 4, "jlpt-n5": 5,
+  n1: 1, n2: 2, n3: 3, n4: 4, n5: 5,
+};
 
 function QuizContent() {
   const params = useParams<{ level: string }>();

@@ -51,6 +51,17 @@ export async function fetchQuestions(levelId: number, categoryId: number, limit?
   return data.data || [];
 }
 
+export async function fetchQuestionById(questionId: string): Promise<Question | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/questions/${questionId}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.data ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function submitVote(vote: "good" | "bad", parentId: string, childId: string): Promise<boolean> {
   try {
     const url = new URL(`${API_BASE}/api/evaluate/${vote}`);

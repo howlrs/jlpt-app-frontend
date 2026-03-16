@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useParams } from "next/navigation";
-import { fetchQuestions, submitVote, recordAnswer, Question } from "@/lib/api";
+import { fetchQuestions, fetchQuestionById, submitVote, recordAnswer, Question } from "@/lib/api";
 
 const levelMap: Record<string, number> = {
   n1: 1, n2: 2, n3: 3, n4: 4, n5: 5,
@@ -13,6 +13,7 @@ function QuizContent() {
   const level = params.level;
   const searchParams = useSearchParams();
   const categoryId = Number(searchParams.get("category") || "1");
+  const questionId = searchParams.get("question_id");
   const levelId = levelMap[level] || 3;
 
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -26,16 +27,28 @@ function QuizContent() {
 
   const loadQuestions = useCallback(() => {
     setLoading(true);
-    fetchQuestions(levelId, categoryId, 10).then((qs) => {
-      setQuestions(qs);
-      setCurrentQ(0);
-      setCurrentSub(0);
-      setSelected(null);
-      setShowResult(false);
-      setScore({ correct: 0, total: 0 });
-      setLoading(false);
-    }).catch(() => setLoading(false));
-  }, [levelId, categoryId]);
+    if (questionId) {
+      fetchQuestionById(questionId).then((q) => {
+        setQuestions(q ? [q] : []);
+        setCurrentQ(0);
+        setCurrentSub(0);
+        setSelected(null);
+        setShowResult(false);
+        setScore({ correct: 0, total: 0 });
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    } else {
+      fetchQuestions(levelId, categoryId, 10).then((qs) => {
+        setQuestions(qs);
+        setCurrentQ(0);
+        setCurrentSub(0);
+        setSelected(null);
+        setShowResult(false);
+        setScore({ correct: 0, total: 0 });
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    }
+  }, [levelId, categoryId, questionId]);
 
   useEffect(() => { loadQuestions(); }, [loadQuestions]);
 

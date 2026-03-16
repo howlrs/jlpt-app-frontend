@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://backend-652691189545.asia-northeast1.run.app";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? (() => { throw new Error("NEXT_PUBLIC_API_URL is not configured"); })();
 
 export interface SelectAnswer {
   key: string;

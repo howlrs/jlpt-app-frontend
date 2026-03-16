@@ -43,10 +43,7 @@ export default function CoverageAnalysisPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) return;
-
-    adminFetchCoverage(token)
+    adminFetchCoverage()
       .then(setData)
       .catch(() => setError("データの取得に失敗しました"))
       .finally(() => setLoading(false));

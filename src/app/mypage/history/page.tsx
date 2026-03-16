@@ -24,18 +24,15 @@ export default function HistoryPage() {
   const [visited, setVisited] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const token = localStorage.getItem("user_token");
-    if (!token) {
-      sessionStorage.setItem("login_redirect", "/mypage/history");
-      router.replace("/login");
-      return;
-    }
-    fetchHistory(token, 50)
+    fetchHistory(50)
       .then((data) => {
         setHistory(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        sessionStorage.setItem("login_redirect", "/mypage/history");
+        router.replace("/login");
+      });
 
     // Restore visited state from localStorage
     try {

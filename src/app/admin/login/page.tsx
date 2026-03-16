@@ -15,8 +15,11 @@ export default function AdminLoginPage() {
     setError("");
     setLoading(true);
     try {
-      const token = await signin(email, password);
-      localStorage.setItem("admin_token", token);
+      const user = await signin(email, password);
+      if (user.role !== "admin") {
+        setError("管理者権限がありません");
+        return;
+      }
       router.replace("/admin");
     } catch {
       setError("メールアドレスまたはパスワードが正しくありません");

@@ -74,13 +74,20 @@ export async function submitVote(vote: "good" | "bad", parentId: string, childId
   }
 }
 
-// User API
+// Auth API
+
+export interface AuthUser {
+  user_id: string;
+  email: string;
+  role: string | null;
+}
 
 export async function signup(email: string, password: string): Promise<void> {
   const res = await fetch(`${API_BASE}/api/signup`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password, id: "", user_id: "" }),
+    credentials: "include",
+    body: JSON.stringify({ email, password }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
@@ -88,42 +95,79 @@ export async function signup(email: string, password: string): Promise<void> {
   }
 }
 
-export async function recordAnswer(token: string, questionId: string, subQuestionId: number, selectedAnswer: string): Promise<void> {
+export async function signin(email: string, password: string): Promise<AuthUser> {
+  const res = await fetch(`${API_BASE}/api/signin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ email, password }),
+  });
+  if (!res.ok) {
+    throw new Error("ログインに失敗しました");
+  }
+  const json = await res.json();
+  return json.data?.user ?? json.user;
+}
+
+export async function fetchAuthMe(): Promise<AuthUser | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/me`, {
+      credentials: "include",
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.data ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function logout(): Promise<void> {
+  await fetch(`${API_BASE}/api/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+  }).catch(() => {});
+}
+
+// User API (cookie-based auth)
+
+export async function recordAnswer(questionId: string, subQuestionId: number, selectedAnswer: string): Promise<void> {
   await fetch(`${API_BASE}/api/answers`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ question_id: questionId, sub_question_id: subQuestionId, selected_answer: selectedAnswer }),
   }).catch(() => {});
 }
 
-export async function fetchHistory(token: string, limit = 50) {
+export async function fetchHistory(limit = 50) {
   const res = await fetch(`${API_BASE}/api/users/me/history?limit=${limit}`, {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to fetch history");
   const data = await res.json();
   return data.data ?? [];
 }
 
-export async function fetchUserStats(token: string) {
+export async function fetchUserStats() {
   const res = await fetch(`${API_BASE}/api/users/me/stats`, {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to fetch stats");
   const data = await res.json();
   return data.data ?? data;
 }
 
-export async function fetchMistakes(token: string, limit = 20) {
+export async function fetchMistakes(limit = 20) {
   const res = await fetch(`${API_BASE}/api/users/me/mistakes?limit=${limit}`, {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to fetch mistakes");
   const data = await res.json();
   return data.data ?? [];
 }
 
-// Admin API
+// Admin API (cookie-based auth)
 
 export interface VoteSummary {
   total_questions: number;
@@ -159,49 +203,37 @@ export interface AdminStats {
   levels: LevelStats[];
 }
 
-export async function signin(email: string, password: string): Promise<string> {
-  const res = await fetch(`${API_BASE}/api/signin`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password, id: "", user_id: "" }),
-  });
-  if (!res.ok) {
-    throw new Error("ログインに失敗しました");
-  }
-  const json = await res.json();
-  return json.data?.token ?? json.token;
-}
-
-export async function adminFetchSummary(token: string): Promise<VoteSummary> {
+export async function adminFetchSummary(): Promise<VoteSummary> {
   const res = await fetch(`${API_BASE}/api/admin/votes/summary`, {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to fetch summary");
   const data = await res.json();
   return data.data ?? data;
 }
 
-export async function adminFetchBadQuestions(token: string): Promise<BadQuestion[]> {
+export async function adminFetchBadQuestions(): Promise<BadQuestion[]> {
   const res = await fetch(`${API_BASE}/api/admin/questions/bad`, {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to fetch bad questions");
   const data = await res.json();
   return data.data ?? data;
 }
 
-export async function adminDeleteQuestion(token: string, questionId: string): Promise<boolean> {
+export async function adminDeleteQuestion(questionId: string): Promise<boolean> {
   const res = await fetch(`${API_BASE}/api/admin/questions/${questionId}`, {
     method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
   });
   return res.ok;
 }
 
-export async function adminBulkDelete(token: string, ids: string[]): Promise<{ deleted: number; failed: number }> {
+export async function adminBulkDelete(ids: string[]): Promise<{ deleted: number; failed: number }> {
   const res = await fetch(`${API_BASE}/api/admin/questions/bulk-delete`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ ids }),
   });
   if (!res.ok) throw new Error("Bulk delete failed");
@@ -209,9 +241,9 @@ export async function adminBulkDelete(token: string, ids: string[]): Promise<{ d
   return data.data ?? data;
 }
 
-export async function adminFetchStats(token: string): Promise<AdminStats> {
+export async function adminFetchStats(): Promise<AdminStats> {
   const res = await fetch(`${API_BASE}/api/admin/stats`, {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to fetch stats");
   const data = await res.json();
@@ -240,9 +272,9 @@ export interface CoverageStats {
   levels: CoverageLevel[];
 }
 
-export async function adminFetchCoverage(token: string): Promise<CoverageStats> {
+export async function adminFetchCoverage(): Promise<CoverageStats> {
   const res = await fetch(`${API_BASE}/api/admin/coverage-stats`, {
-    headers: { Authorization: `Bearer ${token}` },
+    credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to fetch coverage");
   const data = await res.json();

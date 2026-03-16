@@ -26,12 +26,9 @@ export default function AdminDashboardPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) return;
-
     Promise.all([
-      adminFetchSummary(token),
-      adminFetchStats(token).catch(() => null),
+      adminFetchSummary(),
+      adminFetchStats().catch(() => null),
     ])
       .then(([summaryData, statsData]) => {
         setSummary(summaryData);

@@ -32,9 +32,7 @@ export default function AdminVotesPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) return;
-    adminFetchBadQuestions(token)
+    adminFetchBadQuestions()
       .then(setQuestions)
       .catch(() => setError("データの取得に失敗しました"))
       .finally(() => setLoading(false));
@@ -62,10 +60,8 @@ export default function AdminVotesPage() {
   }, [questions, levelFilter, categoryFilter, searchText]);
 
   const handleDelete = async (id: string) => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) return;
     setDeletingId(id);
-    const ok = await adminDeleteQuestion(token, id);
+    const ok = await adminDeleteQuestion(id);
     if (ok) {
       setQuestions((prev) => prev.filter((q) => q.id !== id));
       setSelectedIds((prev) => {
@@ -79,14 +75,13 @@ export default function AdminVotesPage() {
   };
 
   const handleBulkDelete = async () => {
-    const token = localStorage.getItem("admin_token");
-    if (!token || selectedIds.size === 0) return;
+    if (selectedIds.size === 0) return;
     const confirmed = window.confirm(`${selectedIds.size}件の問題を削除しますか？`);
     if (!confirmed) return;
     setBulkDeleting(true);
     try {
       const ids = Array.from(selectedIds);
-      await adminBulkDelete(token, ids);
+      await adminBulkDelete(ids);
       setQuestions((prev) => prev.filter((q) => !selectedIds.has(q.id)));
       setSelectedIds(new Set());
     } catch {

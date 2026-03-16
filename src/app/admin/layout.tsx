@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { fetchAuthMe, logout } from "@/lib/api";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -8,16 +9,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token && pathname !== "/admin/login") {
-      router.replace("/admin/login");
-    } else {
+    if (pathname === "/admin/login") {
       setChecked(true);
+      return;
     }
+    fetchAuthMe().then((user) => {
+      if (!user || user.role !== "admin") {
+        router.replace("/admin/login");
+      } else {
+        setChecked(true);
+      }
+    });
   }, [pathname, router]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("admin_token");
+  const handleLogout = async () => {
+    await logout();
     router.replace("/admin/login");
   };
 

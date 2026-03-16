@@ -87,10 +87,7 @@ function QuizContent() {
       correct: prev.correct + (key === subQuestion.answer ? 1 : 0),
       total: prev.total + 1,
     }));
-    const token = localStorage.getItem("user_token");
-    if (token) {
-      recordAnswer(token, question.id, subQuestion.id, key);
-    }
+    recordAnswer(question.id, subQuestion.id, key);
   };
 
   const handleVote = async (vote: "good" | "bad") => {

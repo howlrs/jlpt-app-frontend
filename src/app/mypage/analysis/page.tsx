@@ -31,18 +31,15 @@ export default function AnalysisPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("user_token");
-    if (!token) {
-      sessionStorage.setItem("login_redirect", "/mypage/analysis");
-      router.replace("/login");
-      return;
-    }
-    fetchUserStats(token)
+    fetchUserStats()
       .then((data) => {
         setStats(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        sessionStorage.setItem("login_redirect", "/mypage/analysis");
+        router.replace("/login");
+      });
   }, [router]);
 
   if (loading) return <div className="text-center py-12 text-gray-500">読み込み中...</div>;

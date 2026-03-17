@@ -135,13 +135,13 @@ function QuizContent() {
 
         <div className="grid gap-3">
           {subQuestion.select_answer.map((sa) => {
-            let style = "bg-white border-gray-200 hover:border-blue-400";
+            let style = "bg-white border-gray-200 text-gray-900 hover:border-blue-400";
             if (showResult) {
               if (sa.key === subQuestion.answer) style = "bg-green-50 border-green-500 text-green-900";
               else if (sa.key === selected) style = "bg-red-50 border-red-500 text-red-900";
-              else style = "bg-gray-50 border-gray-200 text-gray-400";
+              else style = "bg-gray-50 border-gray-200 text-gray-500";
             } else if (sa.key === selected) {
-              style = "bg-blue-50 border-blue-500";
+              style = "bg-blue-50 border-blue-500 text-gray-900";
             }
 
             return (

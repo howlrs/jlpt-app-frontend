@@ -110,7 +110,12 @@ export async function signin(email: string, password: string): Promise<AuthUser>
     throw new Error("ログインに失敗しました");
   }
   const json = await res.json();
-  return json.data?.user ?? json.user;
+  const data = json.data;
+  return {
+    user_id: data?.user_id ?? "",
+    email: data?.email ?? "",
+    role: data?.role ?? null,
+  };
 }
 
 export async function fetchAuthMe(): Promise<AuthUser | null> {

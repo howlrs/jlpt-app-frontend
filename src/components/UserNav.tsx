@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { fetchAuthMe, logout } from "@/lib/api";
 
 export default function UserNav() {
   const router = useRouter();
@@ -10,15 +11,13 @@ export default function UserNav() {
 
   useEffect(() => {
     setMounted(true);
-    setLoggedIn(!!localStorage.getItem("user_token"));
-
-    const onStorage = () => setLoggedIn(!!localStorage.getItem("user_token"));
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
+    fetchAuthMe().then((user) => {
+      setLoggedIn(!!user);
+    });
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("user_token");
+  const handleLogout = async () => {
+    await logout();
     setLoggedIn(false);
     router.push("/");
   };

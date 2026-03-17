@@ -37,8 +37,7 @@ export default function AnalysisPage() {
         setLoading(false);
       })
       .catch(() => {
-        sessionStorage.setItem("login_redirect", "/mypage/analysis");
-        router.replace("/login");
+        setLoading(false);
       });
   }, [router]);
 

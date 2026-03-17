@@ -30,8 +30,7 @@ export default function HistoryPage() {
         setLoading(false);
       })
       .catch(() => {
-        sessionStorage.setItem("login_redirect", "/mypage/history");
-        router.replace("/login");
+        setLoading(false);
       });
 
     // Restore visited state from localStorage

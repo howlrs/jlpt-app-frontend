@@ -6,18 +6,21 @@ import { fetchAuthMe, logout } from "@/lib/api";
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [checked, setChecked] = useState(false);
+  const [authState, setAuthState] = useState<"loading" | "authed" | "denied">("loading");
 
   useEffect(() => {
     if (pathname === "/admin/login") {
-      setChecked(true);
+      setAuthState("authed");
       return;
     }
+
+    setAuthState("loading");
     fetchAuthMe().then((user) => {
-      if (!user || user.role !== "admin") {
-        router.replace("/admin/login");
+      if (user && user.role === "admin") {
+        setAuthState("authed");
       } else {
-        setChecked(true);
+        setAuthState("denied");
+        router.replace("/admin/login");
       }
     });
   }, [pathname, router]);
@@ -27,8 +30,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     router.replace("/admin/login");
   };
 
-  if (!checked) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-500">読み込み中...</div>;
+  // 認証確認完了まで、またはアクセス拒否時は子コンポーネントを一切レンダリングしない
+  if (authState !== "authed") {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-gray-500">
+        {authState === "loading" ? "読み込み中..." : "リダイレクト中..."}
+      </div>
+    );
   }
 
   const isLoginPage = pathname === "/admin/login";

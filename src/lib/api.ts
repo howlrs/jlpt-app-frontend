@@ -1,4 +1,8 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? (() => { throw new Error("NEXT_PUBLIC_API_URL is not configured"); })();
+// サーバー側(SSG/SSR): バックエンドURLを直接使用
+// クライアント側(ブラウザ): 相対パス（Next.js rewritesで同一オリジン経由）
+const API_BASE = typeof window === 'undefined'
+  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080")
+  : "";
 
 export interface SelectAnswer {
   key: string;

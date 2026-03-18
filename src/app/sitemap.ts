@@ -20,5 +20,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...levelPages];
+  // Main category IDs per level for quiz pages
+  const mainCategories = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+  const quizPages: MetadataRoute.Sitemap = [];
+  for (const level of levels) {
+    for (const cat of mainCategories) {
+      quizPages.push({
+        url: `${baseUrl}/${level}/quiz?category=${cat}`,
+        lastModified: new Date(),
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      });
+    }
+  }
+
+  return [...staticPages, ...levelPages, ...quizPages];
 }

@@ -6,23 +6,31 @@ import { fetchAuthMe, logout } from "@/lib/api";
 
 export default function UserNav() {
   const router = useRouter();
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState<{ email: string } | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    fetchAuthMe().then((user) => {
-      setLoggedIn(!!user);
+    fetchAuthMe().then((u) => {
+      setUser(u ? { email: u.email } : null);
     });
   }, []);
 
   const handleLogout = async () => {
     await logout();
-    setLoggedIn(false);
+    setUser(null);
     router.push("/");
   };
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 h-14" />
+      </header>
+    );
+  }
+
+  const displayName = user?.email?.split("@")[0] || "";
 
   return (
     <header className="bg-white border-b border-gray-200">
@@ -31,8 +39,9 @@ export default function UserNav() {
           JLPT学習
         </Link>
         <nav className="flex items-center gap-4">
-          {loggedIn ? (
+          {user ? (
             <>
+              <span className="text-xs text-gray-400 hidden sm:inline">{displayName}</span>
               <Link href="/mypage/history" className="text-sm text-gray-600 hover:text-blue-600 transition">
                 マイページ
               </Link>

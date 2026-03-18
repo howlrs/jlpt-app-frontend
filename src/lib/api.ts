@@ -48,9 +48,8 @@ export async function fetchMeta(): Promise<MetaResponse> {
 }
 
 export async function fetchQuestions(levelId: number, categoryId: number, limit?: number): Promise<Question[]> {
-  const url = new URL(`${API_BASE}/api/level/${levelId}/categories/${categoryId}/questions`);
-  if (limit) url.searchParams.set("limit", String(limit));
-  const res = await fetch(url.toString(), { cache: "no-store" });
+  const limitParam = limit ? `?limit=${limit}` : "";
+  const res = await fetch(`${API_BASE}/api/level/${levelId}/categories/${categoryId}/questions${limitParam}`, { cache: "no-store" });
   const data = await res.json();
   return data.data || [];
 }

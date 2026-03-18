@@ -20,8 +20,11 @@ export async function generateMetadata({ params }: { params: Promise<{ level: st
   const info = levelInfo[level];
   if (!info) return {};
   return {
-    title: `JLPT ${info.name} 練習問題`,
-    description: `JLPT ${info.name}レベルの練習問題。${info.description}。語彙${info.vocab}、漢字${info.kanji}。`,
+    title: `JLPT ${info.name} 練習問題 - 無料で${info.name}対策`,
+    description: `JLPT ${info.name}レベルの練習問題を無料で学習。${info.description}。語彙${info.vocab}、漢字${info.kanji}。`,
+    alternates: {
+      canonical: `/${level}`,
+    },
   };
 }
 

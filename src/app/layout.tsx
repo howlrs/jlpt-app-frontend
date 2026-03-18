@@ -6,12 +6,13 @@ import UserNav from "@/components/UserNav";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://jlpt.howlrs.net"),
   title: {
-    default: "JLPT 日本語能力試験 対策学習アプリ",
+    default: "JLPT 日本語能力試験 対策学習アプリ | 18,000問以上の無料練習問題",
     template: "%s | JLPT学習",
   },
-  description: "JLPT N1〜N5の練習問題を無料で学習。語彙・文法・読解・聴解の全カテゴリ対応。",
-  keywords: ["JLPT", "日本語能力試験", "N1", "N2", "N3", "N4", "N5", "練習問題", "Japanese"],
+  description: "JLPT N1〜N5の練習問題を18,000問以上無料で学習。語彙・文法・読解・聴解の全カテゴリ対応。カテゴリ別の苦手分析機能付き。",
+  keywords: ["JLPT", "日本語能力試験", "N1", "N2", "N3", "N4", "N5", "練習問題", "Japanese", "日本語学習", "無料", "模擬試験"],
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -21,11 +22,19 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "JLPT 日本語能力試験 対策学習アプリ",
-    description: "N1〜N5の練習問題を無料で学習",
+    description: "N1〜N5の練習問題を18,000問以上無料で学習。語彙・文法・読解・聴解の全カテゴリ対応。",
     url: "https://jlpt.howlrs.net",
-    siteName: "JLPT Learning",
+    siteName: "JLPT学習",
     locale: "ja_JP",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JLPT 日本語能力試験 対策学習アプリ",
+    description: "N1〜N5の練習問題を18,000問以上無料で学習",
+  },
+  alternates: {
+    canonical: "/",
   },
 };
 
@@ -34,8 +43,41 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "JLPT 日本語能力試験 対策学習アプリ",
+    url: "https://jlpt.howlrs.net",
+    description: "JLPT N1〜N5の練習問題を18,000問以上無料で学習",
+    inLanguage: "ja",
+  };
+
+  const courseJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: "JLPT 日本語能力試験 対策練習",
+    description: "JLPT N1〜N5の練習問題を18,000問以上収録。語彙・文法・読解・聴解の全カテゴリ対応。",
+    provider: {
+      "@type": "Organization",
+      name: "JLPT学習",
+      url: "https://jlpt.howlrs.net",
+    },
+    isAccessibleForFree: true,
+    availableLanguage: "ja",
+  };
+
   return (
     <html lang="ja">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(courseJsonLd) }}
+        />
+      </head>
       <body className={inter.className}>
         <UserNav />
         {children}

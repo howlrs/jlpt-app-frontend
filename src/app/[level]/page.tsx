@@ -25,6 +25,11 @@ export async function generateMetadata({ params }: { params: Promise<{ level: st
     alternates: {
       canonical: `/${level}`,
     },
+    openGraph: {
+      title: `JLPT ${info.name} 練習問題`,
+      description: `${info.name}レベルの練習問題を無料で学習。${info.description}。`,
+      images: [`/${level}/opengraph-image`],
+    },
   };
 }
 

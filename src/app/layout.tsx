@@ -27,11 +27,20 @@ export const metadata: Metadata = {
     siteName: "JLPT学習",
     locale: "ja_JP",
     type: "website",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "JLPT 日本語能力試験 対策学習アプリ",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "JLPT 日本語能力試験 対策学習アプリ",
     description: "N1〜N5の練習問題を18,000問以上無料で学習",
+    images: ["/opengraph-image"],
   },
   alternates: {
     canonical: "/",

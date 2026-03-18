@@ -48,8 +48,13 @@ export default function Home() {
 
         <footer className="mt-12 text-center text-gray-400 text-sm">
           <p>非公式 JLPT対策アプリ</p>
-          <p className="mt-1">
-            <a href="https://github.com/howlrs" className="hover:text-gray-600">@howlrs</a>
+          <div className="flex justify-center gap-4 mt-3">
+            <Link href="/about" className="hover:text-gray-600 transition">このアプリについて</Link>
+            <Link href="/terms" className="hover:text-gray-600 transition">利用規約</Link>
+            <Link href="/privacy" className="hover:text-gray-600 transition">プライバシーポリシー</Link>
+          </div>
+          <p className="mt-2">
+            <a href="https://github.com/howlrs" className="hover:text-gray-600" target="_blank" rel="noopener noreferrer">@howlrs</a>
           </p>
         </footer>
       </div>

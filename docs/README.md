@@ -55,3 +55,21 @@ cd jlpt-app-frontend
 ```
 
 Cloud Runへのデプロイ時、Dockerfileによるマルチステージビルドが実行される（`output: 'standalone'`）。
+
+### deploy.sh の品質ゲート
+
+`deploy.sh` は以下のチェックを自動実行する:
+
+**プリデプロイ:**
+1. `.env.local` の存在確認（`NEXT_PUBLIC_API_URL` がビルド時に必要）
+2. `npm run build` による TypeScript ビルド検証
+3. バックエンド疎通確認（`/api/meta` への HTTP リクエスト）
+
+**ポストデプロイ:**
+1. フロントエンドの HTML 応答確認
+2. APIプロキシ（Next.js rewrites）の動作確認
+
+### 注意事項
+
+- `new URL()` はクライアント側で `API_BASE` が空文字のため使用禁止。テンプレートリテラルまたは `URLSearchParams` を使うこと。
+- `.env.local` は `.gitignore` で除外されているが `.gcloudignore` には含まれないため、Cloud Build に送信される。

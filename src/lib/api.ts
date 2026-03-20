@@ -67,10 +67,8 @@ export async function fetchQuestionById(questionId: string): Promise<Question | 
 
 export async function submitVote(vote: "good" | "bad", parentId: string, childId: string): Promise<boolean> {
   try {
-    const url = new URL(`${API_BASE}/api/evaluate/${vote}`);
-    url.searchParams.set("parent_id", parentId);
-    url.searchParams.set("child_id", childId);
-    const res = await fetch(url.toString());
+    const params = new URLSearchParams({ parent_id: parentId, child_id: childId });
+    const res = await fetch(`${API_BASE}/api/evaluate/${vote}?${params.toString()}`);
     return res.ok;
   } catch {
     return false;

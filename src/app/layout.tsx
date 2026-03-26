@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import UserNav from "@/components/UserNav";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://jlpt.howlrs.net"),
@@ -99,7 +96,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(courseJsonLd) }}
         />
       </head>
-      <body className={inter.className}>
+      <body>
         <UserNav />
         {children}
       </body>

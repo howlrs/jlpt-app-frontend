@@ -1,21 +1,18 @@
-"use client";
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { fetchMeta, Category } from "@/lib/api";
 
-export default function CategoryList({ levelId, levelSlug }: { levelId: number; levelSlug: string }) {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+export default async function CategoryList({ levelId, levelSlug }: { levelId: number; levelSlug: string }) {
+  let categories: Category[] = [];
+  try {
+    const meta = await fetchMeta();
+    categories = meta.categories.filter((c) => c.level_id === levelId);
+  } catch {
+    // API failure — show empty state
+  }
 
-  useEffect(() => {
-    fetchMeta().then((meta) => {
-      setCategories(meta.categories.filter((c) => c.level_id === levelId));
-      setLoading(false);
-    }).catch(() => setLoading(false));
-  }, [levelId]);
-
-  if (loading) return <div className="text-center py-8 text-gray-500">カテゴリを読み込み中...</div>;
-  if (categories.length === 0) return <div className="text-center py-8 text-gray-500">カテゴリが見つかりません</div>;
+  if (categories.length === 0) {
+    return <div className="text-center py-8 text-gray-500">カテゴリが見つかりません</div>;
+  }
 
   return (
     <div className="grid gap-3">

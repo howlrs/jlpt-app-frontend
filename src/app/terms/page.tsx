@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   title: "利用規約",
   description: "JLPT学習アプリの利用規約。サービスの利用条件、免責事項、禁止事項について。",
   alternates: { canonical: "/terms" },
+  openGraph: {
+    title: "利用規約",
+    description: "JLPT学習アプリの利用規約。",
+  },
 };
 
 export default function TermsPage() {

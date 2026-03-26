@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   title: "このアプリについて",
   description: "JLPT日本語能力試験対策学習アプリの使い方・機能紹介。N1〜N5の練習問題、苦手分析、学習履歴管理など。",
   alternates: { canonical: "/about" },
+  openGraph: {
+    title: "このアプリについて",
+    description: "JLPT学習アプリの機能紹介。N1〜N5対応、18,000問以上の練習問題。",
+  },
 };
 
 export default function AboutPage() {

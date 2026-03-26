@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   title: "プライバシーポリシー",
   description: "JLPT学習アプリのプライバシーポリシー。個人情報の取り扱い、Cookie、データの利用目的について。",
   alternates: { canonical: "/privacy" },
+  openGraph: {
+    title: "プライバシーポリシー",
+    description: "JLPT学習アプリのプライバシーポリシー。",
+  },
 };
 
 export default function PrivacyPage() {

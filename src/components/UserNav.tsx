@@ -51,7 +51,7 @@ export default function UserNav() {
           JLPT学習
         </Link>
         {mounted && (
-          <nav className="flex items-center gap-4">
+          <nav aria-label="ユーザーメニュー" className="flex items-center gap-4">
             {user ? (
               <>
                 <span className="text-xs text-gray-400 hidden sm:inline">{user.email.split("@")[0]}</span>

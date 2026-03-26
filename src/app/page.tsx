@@ -46,15 +46,15 @@ export default function Home() {
           ))}
         </div>
 
-        <footer className="mt-12 text-center text-gray-400 text-sm">
+        <footer className="mt-12 text-center text-gray-500 text-sm">
           <p>非公式 JLPT対策アプリ</p>
-          <div className="flex justify-center gap-4 mt-3">
-            <Link href="/about" className="hover:text-gray-600 transition">このアプリについて</Link>
-            <Link href="/terms" className="hover:text-gray-600 transition">利用規約</Link>
-            <Link href="/privacy" className="hover:text-gray-600 transition">プライバシーポリシー</Link>
-          </div>
+          <nav aria-label="フッターナビゲーション" className="flex justify-center gap-4 mt-3">
+            <Link href="/about" className="hover:text-gray-700 transition">このアプリについて</Link>
+            <Link href="/terms" className="hover:text-gray-700 transition">利用規約</Link>
+            <Link href="/privacy" className="hover:text-gray-700 transition">プライバシーポリシー</Link>
+          </nav>
           <p className="mt-2">
-            <a href="https://github.com/howlrs" className="hover:text-gray-600" target="_blank" rel="noopener noreferrer">@howlrs</a>
+            <a href="https://github.com/howlrs" className="hover:text-gray-700" target="_blank" rel="noopener noreferrer">@howlrs</a>
           </p>
         </footer>
       </div>

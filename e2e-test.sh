@@ -130,6 +130,17 @@ check_contains "$BASE_URL/" "application/ld+json" "Home has JSON-LD"
 # 各レベルページのメタデータ
 check_contains "$BASE_URL/n1" "JLPT N1" "N1 page has level-specific title"
 check_contains "$BASE_URL/n2" "JLPT N2" "N2 page has level-specific title"
+
+# Quiz ページのメタデータ (#20)
+check_contains "$BASE_URL/n3/quiz?category=2" "JLPT N3" "Quiz page has level-specific metadata"
+
+# JSON-LD 強化 (#22)
+check_contains "$BASE_URL/" "CourseInstance" "JSON-LD has CourseInstance"
+check_contains "$BASE_URL/" "potentialAction" "JSON-LD has potentialAction"
+
+# sitemap固定日時 (#21) — 固定日付が使われていることを確認
+check_contains "$BASE_URL/sitemap.xml" "2026-03-26" "Sitemap has fixed content date"
+check_contains "$BASE_URL/sitemap.xml" "2026-03-18" "Sitemap has fixed static page date"
 echo ""
 
 # ========================================
@@ -183,6 +194,17 @@ else
   red "Content-Type missing or wrong"
   FAIL=$((FAIL+1))
 fi
+
+# Security headers (#19)
+for hdr in "x-content-type-options" "x-frame-options" "referrer-policy" "permissions-policy" "strict-transport-security"; do
+  if echo "$HEADERS" | grep -qi "$hdr"; then
+    green "Security header: $hdr"
+    PASS=$((PASS+1))
+  else
+    red "Missing security header: $hdr"
+    FAIL=$((FAIL+1))
+  fi
+done
 
 # HTTPS redirect
 HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://jlpt.howlrs.net/" --max-time 10 -L 2>/dev/null || echo "000")

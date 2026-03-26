@@ -60,6 +60,11 @@ export default function RootLayout({
     url: "https://jlpt.howlrs.net",
     description: "JLPT N1〜N5の練習問題を18,000問以上無料で学習",
     inLanguage: "ja",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://jlpt.howlrs.net/{level}",
+      "query-input": "required name=level",
+    },
   };
 
   const courseJsonLd = {
@@ -74,6 +79,14 @@ export default function RootLayout({
     },
     isAccessibleForFree: true,
     availableLanguage: "ja",
+    educationalLevel: ["beginner", "intermediate", "advanced"],
+    hasCourseInstance: [
+      { "@type": "CourseInstance", name: "N5 初級", courseMode: "online" },
+      { "@type": "CourseInstance", name: "N4 初中級", courseMode: "online" },
+      { "@type": "CourseInstance", name: "N3 中級", courseMode: "online" },
+      { "@type": "CourseInstance", name: "N2 中上級", courseMode: "online" },
+      { "@type": "CourseInstance", name: "N1 上級", courseMode: "online" },
+    ],
   };
 
   return (

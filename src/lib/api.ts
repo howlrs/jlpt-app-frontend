@@ -75,6 +75,22 @@ export async function submitVote(vote: "good" | "bad", parentId: string, childId
   }
 }
 
+// Issue-feedback: ユーザが壊れた問題を報告する
+export async function reportQuestion(questionId: string): Promise<"ok" | "already" | "auth" | "error"> {
+  try {
+    const res = await fetch(`${API_BASE}/api/questions/${questionId}/report`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (res.ok) return "ok";
+    if (res.status === 409) return "already";
+    if (res.status === 401 || res.status === 403) return "auth";
+    return "error";
+  } catch {
+    return "error";
+  }
+}
+
 // Auth API
 
 export interface AuthUser {

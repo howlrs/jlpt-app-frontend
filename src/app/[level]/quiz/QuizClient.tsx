@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useParams } from "next/navigation";
-import { fetchQuestions, fetchQuestionById, submitVote, recordAnswer, Question } from "@/lib/api";
+import { fetchQuestions, fetchQuestionById, submitVote, reportQuestion, recordAnswer, Question } from "@/lib/api";
 
 const levelMap: Record<string, number> = {
   n1: 1, n2: 2, n3: 3, n4: 4, n5: 5,
@@ -24,6 +24,7 @@ function QuizContent() {
   const [score, setScore] = useState({ correct: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [voted, setVoted] = useState<string | null>(null);
+  const [reported, setReported] = useState<"none" | "done" | "already" | "error" | "auth">("none");
 
   const loadQuestions = useCallback(() => {
     setLoading(true);
@@ -96,10 +97,17 @@ function QuizContent() {
     await submitVote(vote, question.id, String(subQuestion.id));
   };
 
+  const handleReport = async () => {
+    if (!question || !subQuestion) return;
+    const result = await reportQuestion(question.id);
+    setReported(result === "ok" ? "done" : result === "already" ? "already" : result === "auth" ? "auth" : "error");
+  };
+
   const handleNext = () => {
     setSelected(null);
     setShowResult(false);
     setVoted(null);
+    setReported("none");
     if (currentSub + 1 < question.sub_questions.length) {
       setCurrentSub(currentSub + 1);
     } else if (currentQ + 1 < questions.length) {
@@ -196,6 +204,29 @@ function QuizContent() {
               >
                 次の問題 →
               </button>
+            </div>
+            <div className="mt-3 flex justify-center">
+              {reported === "none" && (
+                <button
+                  onClick={handleReport}
+                  className="text-xs text-gray-400 hover:text-red-500 transition"
+                  title="この問題に誤りがあれば報告"
+                >
+                  ⚑ 問題を報告
+                </button>
+              )}
+              {reported === "done" && (
+                <span className="text-xs text-green-600">✓ 報告しました（ご協力ありがとうございます）</span>
+              )}
+              {reported === "already" && (
+                <span className="text-xs text-gray-500">この問題はすでに報告済みです</span>
+              )}
+              {reported === "auth" && (
+                <span className="text-xs text-gray-500">報告にはログインが必要です</span>
+              )}
+              {reported === "error" && (
+                <span className="text-xs text-red-500">報告に失敗しました</span>
+              )}
             </div>
           </div>
         )}

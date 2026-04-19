@@ -17,7 +17,7 @@ export default function Home() {
             JLPT 日本語能力試験
           </h1>
           <p className="text-xl text-gray-600 mb-2">対策学習アプリ</p>
-          <p className="text-gray-500">18,000問以上の練習問題で合格を目指そう</p>
+          <p className="text-gray-500">20,000問以上の練習問題で合格を目指そう</p>
         </div>
 
         <div className="grid gap-4">

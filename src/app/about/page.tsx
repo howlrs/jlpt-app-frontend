@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/about" },
   openGraph: {
     title: "このアプリについて",
-    description: "JLPT学習アプリの機能紹介。N1〜N5対応、18,000問以上の練習問題。",
+    description: "JLPT学習アプリの機能紹介。N1〜N5対応、20,000問以上の練習問題。",
   },
 };
 
@@ -24,7 +24,7 @@ export default function AboutPage() {
             <h2 className="text-xl font-bold text-gray-900 mb-3">JLPT学習とは</h2>
             <p>
               JLPT学習は、日本語能力試験（JLPT）N1〜N5の練習問題を無料で提供する学習アプリです。
-              18,000問以上の練習問題を収録しており、語彙・文法・読解・聴解の全カテゴリに対応しています。
+              20,000問以上の練習問題を収録しており、語彙・文法・読解・聴解の全カテゴリに対応しています。
             </p>
           </section>
 

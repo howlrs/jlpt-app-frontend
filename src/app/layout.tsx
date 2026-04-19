@@ -8,10 +8,10 @@ const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 export const metadata: Metadata = {
   metadataBase: new URL("https://jlpt.howlrs.net"),
   title: {
-    default: "JLPT 日本語能力試験 対策学習アプリ | 18,000問以上の無料練習問題",
+    default: "JLPT 日本語能力試験 対策学習アプリ | 20,000問以上の無料練習問題",
     template: "%s | JLPT学習",
   },
-  description: "JLPT N1〜N5の練習問題を18,000問以上無料で学習。語彙・文法・読解・聴解の全カテゴリ対応。カテゴリ別の苦手分析機能付き。",
+  description: "JLPT N1〜N5の練習問題を20,000問以上無料で学習。語彙・文法・読解・聴解の全カテゴリ対応。カテゴリ別の苦手分析機能付き。",
   keywords: ["JLPT", "日本語能力試験", "N1", "N2", "N3", "N4", "N5", "練習問題", "Japanese", "日本語学習", "無料", "模擬試験"],
   icons: {
     icon: [
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "JLPT 日本語能力試験 対策学習アプリ",
-    description: "N1〜N5の練習問題を18,000問以上無料で学習。語彙・文法・読解・聴解の全カテゴリ対応。",
+    description: "N1〜N5の練習問題を20,000問以上無料で学習。語彙・文法・読解・聴解の全カテゴリ対応。",
     url: "https://jlpt.howlrs.net",
     siteName: "JLPT学習",
     locale: "ja_JP",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "JLPT 日本語能力試験 対策学習アプリ",
-    description: "N1〜N5の練習問題を18,000問以上無料で学習",
+    description: "N1〜N5の練習問題を20,000問以上無料で学習",
     images: ["/opengraph-image"],
   },
   alternates: {
@@ -58,7 +58,7 @@ export default function RootLayout({
     "@type": "WebSite",
     name: "JLPT 日本語能力試験 対策学習アプリ",
     url: "https://jlpt.howlrs.net",
-    description: "JLPT N1〜N5の練習問題を18,000問以上無料で学習",
+    description: "JLPT N1〜N5の練習問題を20,000問以上無料で学習",
     inLanguage: "ja",
     potentialAction: {
       "@type": "SearchAction",
@@ -71,7 +71,7 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "Course",
     name: "JLPT 日本語能力試験 対策練習",
-    description: "JLPT N1〜N5の練習問題を18,000問以上収録。語彙・文法・読解・聴解の全カテゴリ対応。",
+    description: "JLPT N1〜N5の練習問題を20,000問以上収録。語彙・文法・読解・聴解の全カテゴリ対応。",
     provider: {
       "@type": "Organization",
       name: "JLPT学習",

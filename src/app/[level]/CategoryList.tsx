@@ -5,7 +5,7 @@ export default async function CategoryList({ levelId, levelSlug }: { levelId: nu
   let categories: Category[] = [];
   try {
     const meta = await fetchMeta();
-    categories = meta.categories.filter((c) => c.level_id === levelId);
+    categories = meta.categories.filter((c) => c.level_id === levelId && (c.reten ?? 0) > 0);
   } catch {
     // API failure — show empty state
   }

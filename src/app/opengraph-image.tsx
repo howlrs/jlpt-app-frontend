@@ -74,7 +74,7 @@ export default function Image() {
             display: "flex",
           }}
         >
-          20,000問以上の練習問題を無料で学習
+          860問の練習問題を無料で学習
         </div>
       </div>
     ),

@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-// Phase 17: レベル別問題数は /api/meta から取得 (ISR 1時間キャッシュ)
+// Phase 17: レベル別問題数は /api/meta から取得
 // 以前は levels[].questions にハードコード値があったが、dedup や削除で DB と乖離していた
 
-export const revalidate = 3600; // 1時間ごとに再生成
+export const revalidate = 60;
 
 interface CategoryMeta {
   id: number;
@@ -30,7 +30,7 @@ async function fetchLevelCounts(): Promise<Record<number, number>> {
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
   try {
     const res = await fetch(`${apiBase}/api/meta`, {
-      next: { revalidate: 3600 },
+      next: { revalidate: 60 },
     });
     if (!res.ok) return {};
     const json: MetaResponse = await res.json();
@@ -51,6 +51,8 @@ function formatJapaneseNumber(n: number): string {
 
 export default async function Home() {
   const levelCounts = await fetchLevelCounts();
+  const totalCount = Object.values(levelCounts).reduce((sum, count) => sum + count, 0);
+  const totalDisplay = totalCount > 0 ? formatJapaneseNumber(totalCount) : "";
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -60,7 +62,9 @@ export default async function Home() {
             JLPT 日本語能力試験
           </h1>
           <p className="text-xl text-gray-600 mb-2">対策学習アプリ</p>
-          <p className="text-gray-500">20,000問以上の練習問題で合格を目指そう</p>
+          <p className="text-gray-500">
+            {totalDisplay ? `${totalDisplay}問の品質検証済み練習問題で合格を目指そう` : "品質検証済み練習問題で合格を目指そう"}
+          </p>
         </div>
 
         <div className="grid gap-4">

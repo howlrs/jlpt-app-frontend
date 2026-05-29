@@ -42,7 +42,7 @@ export interface MetaResponse {
 }
 
 export async function fetchMeta(): Promise<MetaResponse> {
-  const res = await fetch(`${API_BASE}/api/meta`, { next: { revalidate: 3600 } });
+  const res = await fetch(`${API_BASE}/api/meta`, { next: { revalidate: 60 } });
   const data = await res.json();
   return data.data;
 }

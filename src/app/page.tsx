@@ -27,7 +27,7 @@ const LEVEL_META = [
 ];
 
 async function fetchLevelCounts(): Promise<Record<number, number>> {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://backend-652691189545.asia-northeast1.run.app";
   try {
     const res = await fetch(`${apiBase}/api/meta`, {
       next: { revalidate: 60 },

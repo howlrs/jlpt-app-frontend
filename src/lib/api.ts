@@ -1,7 +1,7 @@
 // サーバー側(SSG/SSR): バックエンドURLを直接使用
 // クライアント側(ブラウザ): 相対パス（Next.js rewritesで同一オリジン経由）
 const API_BASE = typeof window === 'undefined'
-  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080")
+  ? (process.env.NEXT_PUBLIC_API_URL || "https://backend-652691189545.asia-northeast1.run.app")
   : "";
 
 export interface SelectAnswer {

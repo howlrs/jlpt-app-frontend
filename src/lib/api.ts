@@ -41,17 +41,96 @@ export interface MetaResponse {
   categories: Category[];
 }
 
+type CachedValue<T> = {
+  expiresAt: number;
+  promise: Promise<T>;
+};
+
+type LevelQuestionsResult =
+  | { status: "ok"; questions: Question[] }
+  | { status: "unavailable"; code?: number };
+
+const CLIENT_CACHE_TTL_MS = 30_000;
+const clientCache = new Map<string, CachedValue<unknown>>();
+
+function cachedClientFetch<T>(key: string, loader: () => Promise<T>): Promise<T> {
+  if (typeof window === "undefined") {
+    return loader();
+  }
+
+  const now = Date.now();
+  const cached = clientCache.get(key);
+  if (cached && cached.expiresAt > now) {
+    return cached.promise as Promise<T>;
+  }
+
+  const promise = loader().catch((error) => {
+    clientCache.delete(key);
+    throw error;
+  });
+  clientCache.set(key, { expiresAt: now + CLIENT_CACHE_TTL_MS, promise });
+  return promise;
+}
+
+async function cachedNonEmptyClientFetch<T>(
+  key: string,
+  loader: () => Promise<T[]>,
+): Promise<T[]> {
+  return cachedClientFetch<T[]>(key, async () => {
+    const items = await loader();
+    if (items.length === 0) {
+      clientCache.delete(key);
+    }
+    return items;
+  });
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function fetchMeta(): Promise<MetaResponse> {
-  const res = await fetch(`${API_BASE}/api/meta`, { next: { revalidate: 60 } });
-  const data = await res.json();
-  return data.data;
+  return cachedClientFetch("meta", async () => {
+    const res = await fetch(`${API_BASE}/api/meta`, { next: { revalidate: 60 } });
+    const data = await res.json();
+    return data.data;
+  });
 }
 
 export async function fetchQuestions(levelId: number, categoryId: number, limit?: number): Promise<Question[]> {
-  const limitParam = limit ? `?limit=${limit}` : "";
-  const res = await fetch(`${API_BASE}/api/level/${levelId}/categories/${categoryId}/questions${limitParam}`, { cache: "no-store" });
-  const data = await res.json();
-  return data.data || [];
+  return cachedNonEmptyClientFetch(`questions:${levelId}:${categoryId}:${limit ?? "all"}`, async () => {
+    const limitParam = limit ? `?limit=${limit}` : "";
+    const url = `${API_BASE}/api/level/${levelId}/categories/${categoryId}/questions${limitParam}`;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const res = await fetch(url, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        const questions = data.data || [];
+        if (questions.length > 0 || attempt === 2) return questions;
+      }
+      if (attempt < 2) await sleep(300 * (attempt + 1));
+    }
+    return [];
+  });
+}
+
+export async function fetchLevelQuestions(levelId: number, limit?: number): Promise<LevelQuestionsResult> {
+  return cachedClientFetch<LevelQuestionsResult>(`level-questions:${levelId}:${limit ?? "all"}`, async () => {
+    const limitParam = limit ? `?limit=${limit}` : "";
+    const url = `${API_BASE}/api/level/${levelId}/questions${limitParam}`;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const res = await fetch(url, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        const questions = data.data || [];
+        if (questions.length > 0 || attempt === 2) {
+          return { status: "ok", questions };
+        }
+      }
+      if (attempt < 2) await sleep(300 * (attempt + 1));
+    }
+    return { status: "unavailable" };
+  }).catch(() => ({ status: "unavailable" }));
 }
 
 export async function fetchQuestionById(questionId: string): Promise<Question | null> {

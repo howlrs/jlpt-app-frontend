@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { fetchMeta } from "@/lib/api";
+import { Category, fetchMeta } from "@/lib/api";
 import QuizClient from "./QuizClient";
 
 const levelNames: Record<string, string> = {
@@ -31,8 +31,20 @@ export async function generateMetadata({
     };
   }
 
+  if (!category) {
+    return {
+      title: `JLPT ${name} ランダム一問一答`,
+      description: `JLPT ${name}レベルの全カテゴリからランダムに出題される一問一答クイズ。`,
+      alternates: { canonical: `/${level}/quiz` },
+      openGraph: {
+        title: `JLPT ${name} ランダム一問一答`,
+        description: `JLPT ${name}レベルの全カテゴリからランダムに出題される一問一答クイズ。`,
+      },
+    };
+  }
+
   // カテゴリ別クイズページ
-  const categoryId = Number(category || "1");
+  const categoryId = Number(category);
   let categoryName = "";
   try {
     const meta = await fetchMeta();
@@ -62,6 +74,21 @@ export async function generateMetadata({
   };
 }
 
-export default function QuizPage() {
-  return <QuizClient />;
+export default async function QuizPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ category?: string; question_id?: string }>;
+}) {
+  const { category, question_id } = await searchParams;
+  let categories: Category[] = [];
+  if (!category && !question_id) {
+    try {
+      const meta = await fetchMeta();
+      categories = meta.categories;
+    } catch {
+      // QuizClient falls back to the level-wide questions API first.
+    }
+  }
+
+  return <QuizClient categories={categories} />;
 }

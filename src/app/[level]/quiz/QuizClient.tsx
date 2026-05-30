@@ -2,23 +2,69 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useParams } from "next/navigation";
-import { fetchQuestions, fetchQuestionById, submitVote, reportQuestion, recordAnswer, Question } from "@/lib/api";
+import {
+  fetchLevelQuestions,
+  fetchQuestions,
+  fetchQuestionById,
+  submitVote,
+  reportQuestion,
+  recordAnswer,
+  Category,
+  Question,
+  SubQuestion,
+} from "@/lib/api";
 
 const levelMap: Record<string, number> = {
   n1: 1, n2: 2, n3: 3, n4: 4, n5: 5,
 };
 
-function QuizContent() {
+interface QuizItem {
+  question: Question;
+  subQuestion: SubQuestion;
+}
+
+const QUESTION_COUNT = 10;
+const FALLBACK_CATEGORY_ATTEMPTS = 2;
+const QUESTIONS_PER_FALLBACK_CATEGORY = Math.ceil(QUESTION_COUNT / FALLBACK_CATEGORY_ATTEMPTS);
+
+function shuffle<T>(items: T[]): T[] {
+  return [...items].sort(() => Math.random() - 0.5);
+}
+
+function flattenQuestions(questions: Question[]): QuizItem[] {
+  return questions.flatMap((question) =>
+    question.sub_questions
+      .filter((subQuestion) => subQuestion.select_answer.length > 0)
+      .map((subQuestion) => ({ question, subQuestion })),
+  );
+}
+
+function LoadingState() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center px-4 text-center">
+        <div
+          className="mb-5 h-12 w-12 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600"
+          aria-hidden="true"
+        />
+        <p className="text-base font-medium text-gray-700">問題を読み込み中...</p>
+        <p className="mt-2 text-sm text-gray-500">通信状況によって数秒かかることがあります。</p>
+      </div>
+    </div>
+  );
+}
+
+function QuizContent({ categories }: { categories: Category[] }) {
   const params = useParams<{ level: string }>();
   const level = params.level;
   const searchParams = useSearchParams();
-  const categoryId = Number(searchParams.get("category") || "1");
+  const categoryParam = searchParams.get("category");
+  const categoryId = categoryParam ? Number(categoryParam) : null;
   const questionId = searchParams.get("question_id");
   const levelId = levelMap[level] || 3;
 
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [currentQ, setCurrentQ] = useState(0);
-  const [currentSub, setCurrentSub] = useState(0);
+  const [items, setItems] = useState<QuizItem[]>([]);
+  const [currentIdx, setCurrentIdx] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [score, setScore] = useState({ correct: 0, total: 0 });
@@ -26,43 +72,95 @@ function QuizContent() {
   const [voted, setVoted] = useState<string | null>(null);
   const [reported, setReported] = useState<"none" | "done" | "already" | "error" | "auth">("none");
 
-  const loadQuestions = useCallback(() => {
+  const resetSession = (nextItems: QuizItem[]) => {
+    setItems(nextItems);
+    setCurrentIdx(0);
+    setSelected(null);
+    setShowResult(false);
+    setScore({ correct: 0, total: 0 });
+    setVoted(null);
+    setReported("none");
+  };
+
+  const loadQuestions = useCallback(async () => {
     setLoading(true);
-    if (questionId) {
-      fetchQuestionById(questionId).then((q) => {
-        setQuestions(q ? [q] : []);
-        setCurrentQ(0);
-        setCurrentSub(0);
-        setSelected(null);
-        setShowResult(false);
-        setScore({ correct: 0, total: 0 });
-        setLoading(false);
-      }).catch(() => setLoading(false));
-    } else {
-      fetchQuestions(levelId, categoryId, 10).then((qs) => {
-        setQuestions(qs);
-        setCurrentQ(0);
-        setCurrentSub(0);
-        setSelected(null);
-        setShowResult(false);
-        setScore({ correct: 0, total: 0 });
-        setLoading(false);
-      }).catch(() => setLoading(false));
+    try {
+      if (questionId) {
+        const q = await fetchQuestionById(questionId);
+        resetSession(q ? flattenQuestions([q]) : []);
+        return;
+      }
+
+      if (categoryId) {
+        const qs = await fetchQuestions(levelId, categoryId, QUESTION_COUNT);
+        resetSession(flattenQuestions(qs).slice(0, QUESTION_COUNT));
+        return;
+      }
+
+      const levelQuestions = await fetchLevelQuestions(levelId, QUESTION_COUNT);
+      if (levelQuestions.status === "ok") {
+        resetSession(flattenQuestions(levelQuestions.questions).slice(0, QUESTION_COUNT));
+        return;
+      }
+
+      const fallbackCategories = shuffle(
+        categories.filter(
+          (category) => category.level_id === levelId && (category.reten ?? 0) > 0,
+        ),
+      ).slice(0, FALLBACK_CATEGORY_ATTEMPTS);
+      const results = await Promise.all(
+        fallbackCategories.map((category) =>
+          fetchQuestions(levelId, category.id, QUESTIONS_PER_FALLBACK_CATEGORY),
+        ),
+      );
+      const fallbackQuestions = results.flat();
+      resetSession(shuffle(flattenQuestions(fallbackQuestions)).slice(0, QUESTION_COUNT));
+      return;
+    } catch {
+      resetSession([]);
+    } finally {
+      setLoading(false);
     }
-  }, [levelId, categoryId, questionId]);
+  }, [levelId, categoryId, questionId, categories]);
 
-  useEffect(() => { loadQuestions(); }, [loadQuestions]);
+  useEffect(() => {
+    queueMicrotask(() => {
+      void loadQuestions();
+    });
+  }, [loadQuestions]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center text-gray-500">問題を読み込み中...</div>;
-  if (questions.length === 0) return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-gray-500 gap-4">
-      <p>問題が見つかりません</p>
-      <Link href={`/${level}`} className="text-blue-600 hover:underline">カテゴリ選択に戻る</Link>
+  if (loading) return <LoadingState />;
+  if (items.length === 0) return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 px-4 text-center">
+        <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+          <h1 className="text-xl font-bold text-gray-900">問題が見つかりません</h1>
+          <p className="mt-3 text-sm leading-6 text-gray-600">
+            一時的な通信失敗、またはアクセス集中により問題を取得できませんでした。
+          </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              onClick={loadQuestions}
+              className="rounded-lg bg-blue-600 px-5 py-3 font-medium text-white transition hover:bg-blue-700"
+            >
+              再読み込み
+            </button>
+            <Link
+              href={`/${level}`}
+              className="rounded-lg border border-gray-300 px-5 py-3 font-medium text-gray-700 transition hover:bg-gray-50"
+            >
+              カテゴリ選択に戻る
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
-  const question = questions[currentQ];
-  const subQuestion = question?.sub_questions[currentSub];
+  const current = items[currentIdx];
+  const question = current?.question;
+  const subQuestion = current?.subQuestion;
 
   if (!question || !subQuestion) {
     return (
@@ -108,15 +206,10 @@ function QuizContent() {
     setShowResult(false);
     setVoted(null);
     setReported("none");
-    if (currentSub + 1 < question.sub_questions.length) {
-      setCurrentSub(currentSub + 1);
-    } else if (currentQ + 1 < questions.length) {
-      setCurrentQ(currentQ + 1);
-      setCurrentSub(0);
-    } else {
-      setCurrentQ(questions.length);
-    }
+    setCurrentIdx((index) => index + 1);
   };
+
+  const quizLabel = categoryParam ? question.category_name : "カテゴリ横断";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -124,12 +217,12 @@ function QuizContent() {
         <div className="flex items-center justify-between mb-6">
           <Link href={`/${level}`} className="text-blue-600 hover:underline text-sm">&larr; 戻る</Link>
           <span className="text-sm text-gray-500">
-            {score.correct}/{score.total} 正解
+            {score.correct}/{score.total} 正解 ・ {currentIdx + 1}/{items.length}
           </span>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-          <p className="text-sm text-gray-500 mb-2">{question.category_name}</p>
+          <p className="text-sm text-gray-500 mb-2">{quizLabel}</p>
           <p className="text-gray-700 mb-4">{question.sentence}</p>
           {question.prerequisites && (
             <div className="bg-gray-50 rounded-lg p-4 mb-4 text-sm text-gray-600 whitespace-pre-wrap">
@@ -155,6 +248,7 @@ function QuizContent() {
             return (
               <button
                 key={sa.key}
+                type="button"
                 onClick={() => handleSelect(sa.key)}
                 disabled={showResult}
                 className={`w-full text-left p-4 rounded-lg border-2 transition ${style}`}
@@ -171,6 +265,7 @@ function QuizContent() {
             <div className="flex items-center justify-between">
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={() => handleVote("good")}
                   disabled={!!voted}
                   className={`px-3 py-2 rounded-lg text-sm transition ${
@@ -184,6 +279,7 @@ function QuizContent() {
                   👍 良問
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleVote("bad")}
                   disabled={!!voted}
                   className={`px-3 py-2 rounded-lg text-sm transition ${
@@ -199,15 +295,17 @@ function QuizContent() {
                 {voted && <span className="text-xs text-gray-400 self-center ml-1">送信済み</span>}
               </div>
               <button
+                type="button"
                 onClick={handleNext}
                 className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-lg"
               >
-                次の問題 →
+                {currentIdx + 1 >= items.length ? "結果を見る" : "次の問題 →"}
               </button>
             </div>
             <div className="mt-3 flex justify-center">
               {reported === "none" && (
                 <button
+                  type="button"
                   onClick={handleReport}
                   className="text-xs text-gray-400 hover:text-red-500 transition"
                   title="この問題に誤りがあれば報告"
@@ -235,10 +333,10 @@ function QuizContent() {
   );
 }
 
-export default function QuizClient() {
+export default function QuizClient({ categories }: { categories: Category[] }) {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center">読み込み中...</div>}>
-      <QuizContent />
+      <QuizContent categories={categories} />
     </Suspense>
   );
 }

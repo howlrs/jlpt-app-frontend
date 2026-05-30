@@ -90,7 +90,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="ja">
+    <html lang="ja" suppressHydrationWarning>
       <head>
         {GA_ID && (
           <>
@@ -100,16 +100,18 @@ export default function RootLayout({
             </Script>
           </>
         )}
+      </head>
+      <body>
         <script
+          id="website-jsonld"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <script
+          id="course-jsonld"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(courseJsonLd) }}
         />
-      </head>
-      <body>
         <UserNav />
         {children}
       </body>

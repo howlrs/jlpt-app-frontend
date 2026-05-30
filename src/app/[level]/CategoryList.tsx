@@ -1,13 +1,23 @@
 import Link from "next/link";
 import { fetchMeta, Category } from "@/lib/api";
 
-export default async function CategoryList({ levelId, levelSlug }: { levelId: number; levelSlug: string }) {
-  let categories: Category[] = [];
-  try {
-    const meta = await fetchMeta();
-    categories = meta.categories.filter((c) => c.level_id === levelId && (c.reten ?? 0) > 0);
-  } catch {
-    // API failure — show empty state
+export default async function CategoryList({
+  levelId,
+  levelSlug,
+  initialCategories,
+}: {
+  levelId: number;
+  levelSlug: string;
+  initialCategories?: Category[];
+}) {
+  let categories: Category[] = initialCategories ?? [];
+  if (!initialCategories) {
+    try {
+      const meta = await fetchMeta();
+      categories = meta.categories.filter((c) => c.level_id === levelId && (c.reten ?? 0) > 0);
+    } catch {
+      // API failure — show empty state
+    }
   }
 
   if (categories.length === 0) {

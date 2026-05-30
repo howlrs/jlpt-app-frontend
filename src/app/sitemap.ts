@@ -42,6 +42,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
+  const levelQuizPages: MetadataRoute.Sitemap = levels.map((level) => ({
+    url: `${baseUrl}/${level}/quiz`,
+    lastModified: contentUpdated,
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
   const mainCategories = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
   const quizPages: MetadataRoute.Sitemap = [];
   for (const level of levels) {
@@ -55,5 +62,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  return [...staticPages, ...levelPages, ...quizPages];
+  return [...staticPages, ...levelPages, ...levelQuizPages, ...quizPages];
 }
